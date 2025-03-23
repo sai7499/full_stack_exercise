@@ -90,7 +90,7 @@ def update_task(task_id):
             )
             email_notification_thread.start()
 
-            emit_task_update() # emiting event with new updated tasks list when user updates any task
+            emit_task_update()  # emiting event with new updated tasks list when user updates any task
 
             return jsonify(task), 200
 
@@ -104,16 +104,24 @@ def delete_task(task_id):
         print(i, task)
         if task["id"] == task_id:
             del tasks[i]
-            emit_task_update() # emiting event with new updated tasks list when user deletes any task
+            emit_task_update()  # emiting event with new updated tasks list when user deletes any task
             return jsonify({"message": "Task deleted"}), 204
     return jsonify({"error": "Task not found"}), 404
 
 
-# Socket.IO event listener to handle client connections
+# --------------------- WebSocket Events  starts from here ---------------------
+
+# This handle_connect() function/method will be called whenever a client connects to the server for real-time events
+# Socket.IO event listener to handle real-time client connections
+
+
 @socketio.on("connect")
 def handle_connect():
     print("Client connected!")
     emit_task_update()  # Send the current task list to the newly connected client
+
+
+# Socket.IO event listener to handle real-time client connections for request task updates
 
 
 # Handle task update requests from the client
@@ -123,13 +131,13 @@ def handle_task_update():
     emit_task_update()  # Emit task update
 
 
+# This will handle a disconnect event from clients
 @socketio.on("disconnect")
 def handle_disconnect():
     print("Client disconnected!")
 
 
-
-
+# --------------------- WebSocket Events  ends  here ---------------------
 
 
 if __name__ == "__main__":
